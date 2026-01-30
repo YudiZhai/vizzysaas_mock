@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vizzy Demo - Share Link</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";margin:0;background:#f8fafc;color:#0f172a}
+    .wrap{max-width:960px;margin:0 auto;padding:32px}
+    .card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px;margin:14px 0;box-shadow:0 8px 20px rgba(15,23,42,.06)}
+    a.btn{display:inline-block;padding:10px 14px;border-radius:12px;border:1px solid #e2e8f0;text-decoration:none;color:#0f172a;background:#fff}
+    a.btn:hover{border-color:#6366f1}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
+    .small{color:#64748b;font-size:13px;line-height:1.5}
+    .title{font-size:22px;font-weight:750;margin:0 0 10px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 class="title">Vizzy Demo Pages</h1>
+    <p class="small">把这个文件夹上传到任意静态托管（GitHub Pages / Netlify / Vercel / Cloudflare Pages）即可获得“可直接分享”的公网链接。也可以直接把 zip 发给别人解压后本地打开。</p>
+
+    <div class="grid">
+      <div class="card">
+        <h2 style="margin:0 0 8px;font-size:16px">Brand Campaign Platform</h2>
+        <p class="small">品牌侧：Dashboard / Campaign / Creator Discovery / Analytics / Messages / Payout</p>
+        <p><a class="btn" href="./brand-saas-platform.html">打开页面</a></p>
+      </div>
+
+      <div class="card">
+        <h2 style="margin:0 0 8px;font-size:16px">Operations Hub</h2>
+        <p class="small">运营侧：Kanban Pipeline / DB / Agents / Review / Alerts / Comms / Payout</p>
+        <p><a class="btn" href="./operations-hub.html">打开页面</a></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 8px;font-size:16px">一键托管建议</h2>
+      <ol class="small">
+        <li><b>Netlify Drop（最省事）</b>：把 zip 拖到 Netlify 的 “Deploy manually” 区域 → 自动给你一个 https 链接。</li>
+        <li><b>GitHub Pages</b>：新建 repo → 上传三个文件（index + 两个 html）→ Settings → Pages → 选择 main / root。</li>
+        <li><b>Vercel / Cloudflare Pages</b>：新建项目 → 选择静态站点 → 输出目录为仓库根目录即可。</li>
+      </ol>
+      <p class="small">注：页面使用了 Tailwind CDN；若要“离线可用/更稳”，需要把 Tailwind 打包到本地（我也可以帮你做离线版）。</p>
+    </div>
+  </div>
+</body>
+</html>

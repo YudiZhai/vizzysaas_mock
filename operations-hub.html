@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vizzy Operations Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0ea5e9',
+                        secondary: '#6366f1',
+                        accent: '#10b981',
+                        dark: '#0f172a',
+                        muted: '#64748b',
+                        surface: '#f1f5f9',
+                        border: '#e2e8f0'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Inter', system-ui, sans-serif; }
+        .sidebar-item:hover { background: rgba(14, 165, 233, 0.08); }
+        .sidebar-item.active { background: rgba(14, 165, 233, 0.12); color: #0ea5e9; border-left: 3px solid #0ea5e9; }
+        .kanban-col { min-height: 400px; }
+        .drag-card:hover { transform: translateY(-2px); box-shadow: 0 8px 16px -4px rgba(0,0,0,0.1); }
+        .tab-active { border-bottom: 2px solid #0ea5e9; color: #0ea5e9; }
+        .badge { font-size: 11px; padding: 2px 8px; border-radius: 9999px; font-weight: 500; }
+    </style>
+</head>
+<body class="bg-surface text-dark">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-60 bg-dark flex flex-col">
+            <div class="p-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-white font-bold">Vizzy</span>
+                        <span class="text-primary text-xs block">Ops Hub</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="flex-1 px-3 space-y-1">
+                <a href="#" class="sidebar-item active flex items-center gap-3 px-3 py-2.5 rounded-r-lg text-white/70 transition-colors" onclick="showPage('dashboard')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                    <span class="text-sm font-medium">Dashboard</span>
+                </a>
+
+                <div class="pt-4 pb-2 px-3"><span class="text-xs font-semibold text-white/40 uppercase tracking-wider">Database</span></div>
+
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg text-white/70 transition-colors" onclick="showPage('campaigns')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    <span class="text-sm">Campaign DB</span>
+                    <span class="ml-auto bg-primary/20 text-primary badge">45</span>
+                </a>
+
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg text-white/70 transition-colors" onclick="showPage('creators')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span class="text-sm">Creator DB</span>
+                    <span class="ml-auto bg-secondary/20 text-secondary badge">2.4K</span>
+                </a>
+
+                <div class="pt-4 pb-2 px-3"><span class="text-xs font-semibold text-white/40 uppercase tracking-wider">AI Agents</span></div>
+
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg text-white/70 transition-colors" onclick="showPage('dashboard-agent')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    <span class="text-sm">Dashboard Agent</span>
+                </a>
+
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg text-white/70 transition-colors" onclick="showPage('gameplan-agent')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    <span class="text-sm">Gameplan Agent</span>
+                </a>
+
+                <div class="pt-4 pb-2 px-3"><span class="text-xs font-semibold text-white/40 uppercase tracking-wider">Operations</span></div>
+
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg text-white/70 transition-colors" onclick="showPage('review')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    <span class="text-sm">Review System</span>
+                    <span class="ml-auto bg-red-500/20 text-red-400 badge">12</span>
+                </a>
+
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg text-white/70 transition-colors" onclick="showPage('alerts')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    <span class="text-sm">Source Alerts</span>
+                    <span class="ml-auto bg-accent/20 text-accent badge">5</span>
+                </a>
+
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg text-white/70 transition-colors" onclick="showPage('comms')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    <span class="text-sm">Communications</span>
+                </a>
+
+                <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg text-white/70 transition-colors" onclick="showPage('payout')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="text-sm">Payout System</span>
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-semibold text-sm">OP</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-white text-sm font-medium truncate">Operations Team</p>
+                        <p class="text-white/50 text-xs">Admin</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="bg-white border-b border-border px-6 py-4 flex items-center justify-between">
+                <div>
+                    <h1 class="text-xl font-bold" id="page-title">Operations Dashboard</h1>
+                    <p class="text-muted text-sm" id="page-subtitle">Monitor and manage all campaigns</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <input type="text" placeholder="Search..." class="w-56 pl-9 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        <svg class="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                    <button class="relative p-2 hover:bg-surface rounded-lg">
+                        <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-6" id="main-content">
+                <!-- Dashboard Page -->
+                <div id="page-dashboard" class="page-content">
+                    <!-- Stats -->
+                    <div class="grid grid-cols-5 gap-4 mb-6">
+                        <div class="bg-white rounded-xl p-4 border border-border">
+                            <p class="text-xs text-muted mb-1">Active Campaigns</p>
+                            <p class="text-2xl font-bold">45</p>
+                            <p class="text-xs text-accent">+5 this week</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 border border-border">
+                            <p class="text-xs text-muted mb-1">Creators in DB</p>
+                            <p class="text-2xl font-bold">2,438</p>
+                            <p class="text-xs text-accent">+128 this week</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 border border-border">
+                            <p class="text-xs text-muted mb-1">Pending Reviews</p>
+                            <p class="text-2xl font-bold text-yellow-600">12</p>
+                            <p class="text-xs text-red-500">3 urgent</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 border border-border">
+                            <p class="text-xs text-muted mb-1">Viral Alerts</p>
+                            <p class="text-2xl font-bold text-accent">5</p>
+                            <p class="text-xs text-muted">Today</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 border border-border">
+                            <p class="text-xs text-muted mb-1">Pending Payouts</p>
+                            <p class="text-2xl font-bold">$24.5K</p>
+                            <p class="text-xs text-muted">32 creators</p>
+                        </div>
+                    </div>
+
+                    <!-- Kanban Board -->
+                    <div class="bg-white rounded-xl border border-border p-4 mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold">Campaign Pipeline</h3>
+                            <div class="flex gap-2">
+                                <button class="text-sm text-muted hover:text-dark">All Brands</button>
+                                <span class="text-muted">|</span>
+                                <button class="text-sm text-primary font-medium">This Week</button>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 overflow-x-auto pb-2">
+                            <!-- Sourcing Column -->
+                            <div class="kanban-col w-64 flex-shrink-0">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                    <span class="font-medium text-sm">Sourcing</span>
+                                    <span class="text-xs text-muted ml-auto">8</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="drag-card bg-surface p-3 rounded-lg border border-border cursor-pointer transition-all">
+                                        <p class="font-medium text-sm mb-1">Summer Beauty</p>
+                                        <p class="text-xs text-muted mb-2">Acme Brand</p>
+                                        <div class="flex items-center justify-between">
+                                            <span class="badge bg-blue-100 text-blue-600">12/20 creators</span>
+                                            <span class="text-xs text-muted">2d left</span>
+                                        </div>
+                                    </div>
+                                    <div class="drag-card bg-surface p-3 rounded-lg border border-border cursor-pointer transition-all">
+                                        <p class="font-medium text-sm mb-1">Tech Launch</p>
+                                        <p class="text-xs text-muted mb-2">TechCo</p>
+                                        <div class="flex items-center justify-between">
+                                            <span class="badge bg-blue-100 text-blue-600">5/15 creators</span>
+                                            <span class="text-xs text-muted">5d left</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- In Production Column -->
+                            <div class="kanban-col w-64 flex-shrink-0">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                                    <span class="font-medium text-sm">In Production</span>
+                                    <span class="text-xs text-muted ml-auto">12</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="drag-card bg-surface p-3 rounded-lg border border-border cursor-pointer transition-all">
+                                        <p class="font-medium text-sm mb-1">Fitness App Q1</p>
+                                        <p class="text-xs text-muted mb-2">FitLife</p>
+                                        <div class="flex items-center justify-between">
+                                            <span class="badge bg-yellow-100 text-yellow-700">18/25 videos</span>
+                                            <span class="text-xs text-muted">4d left</span>
+                                        </div>
+                                    </div>
+                                    <div class="drag-card bg-red-50 p-3 rounded-lg border border-red-200 cursor-pointer transition-all">
+                                        <p class="font-medium text-sm mb-1">Food Delivery</p>
+                                        <p class="text-xs text-muted mb-2">QuickEats</p>
+                                        <div class="flex items-center justify-between">
+                                            <span class="badge bg-red-100 text-red-600">8/30 videos</span>
+                                            <span class="text-xs text-red-600 font-medium">Overdue!</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Review Column -->
+                            <div class="kanban-col w-64 flex-shrink-0">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                                    <span class="font-medium text-sm">Under Review</span>
+                                    <span class="text-xs text-muted ml-auto">6</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="drag-card bg-surface p-3 rounded-lg border border-border cursor-pointer transition-all">
+                                        <p class="font-medium text-sm mb-1">Skincare Pro</p>
+                                        <p class="text-xs text-muted mb-2">GlowUp</p>
+                                        <div class="flex items-center justify-between">
+                                            <span class="badge bg-purple-100 text-purple-600">5 pending</span>
+                                            <span class="text-xs text-muted">Brand review</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Column -->
+                            <div class="kanban-col w-64 flex-shrink-0">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                    <span class="font-medium text-sm">Live</span>
+                                    <span class="text-xs text-muted ml-auto">15</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="drag-card bg-green-50 p-3 rounded-lg border border-green-200 cursor-pointer transition-all">
+                                        <p class="font-medium text-sm mb-1">Holiday Special</p>
+                                        <p class="text-xs text-muted mb-2">BigRetail</p>
+                                        <div class="flex items-center justify-between">
+                                            <span class="badge bg-green-100 text-green-600">2.1M views</span>
+                                            <span class="text-xs text-green-600">🔥 Viral</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payout Column -->
+                            <div class="kanban-col w-64 flex-shrink-0">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="w-2 h-2 rounded-full bg-gray-500"></span>
+                                    <span class="font-medium text-sm">Payout</span>
+                                    <span class="text-xs text-muted ml-auto">4</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="drag-card bg-surface p-3 rounded-lg border border-border cursor-pointer transition-all">
+                                        <p class="font-medium text-sm mb-1">Winter Campaign</p>
+                                        <p class="text-xs text-muted mb-2">CozyHome</p>
+                                        <div class="flex items-center justify-between">
+                                            <span class="badge bg-gray-100 text-gray-600">$12.4K pending</span>
+                                            <span class="text-xs text-muted">18 creators</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions & Alerts -->
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl border border-border p-4">
+                            <h3 class="font-semibold mb-4">Quick Actions</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button class="flex items-center gap-3 p-3 bg-surface rounded-lg hover:bg-primary/10 transition-colors text-left">
+                                    <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">Add Creator</p>
+                                        <p class="text-xs text-muted">To database</p>
+                                    </div>
+                                </button>
+                                <button class="flex items-center gap-3 p-3 bg-surface rounded-lg hover:bg-secondary/10 transition-colors text-left">
+                                    <div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">New Campaign</p>
+                                        <p class="text-xs text-muted">Create deal</p>
+                                    </div>
+                                </button>
+                                <button class="flex items-center gap-3 p-3 bg-surface rounded-lg hover:bg-accent/10 transition-colors text-left">
+                                    <div class="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">Send Invites</p>
+                                        <p class="text-xs text-muted">Bulk email</p>
+                                    </div>
+                                </button>
+                                <button class="flex items-center gap-3 p-3 bg-surface rounded-lg hover:bg-yellow-500/10 transition-colors text-left">
+                                    <div class="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">Run Agent</p>
+                                        <p class="text-xs text-muted">Dashboard/Gameplan</p>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-border p-4">
+                            <h3 class="font-semibold mb-4">Recent Alerts</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start gap-3 p-2 rounded-lg hover:bg-surface">
+                                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium">Viral Alert: Summer Beauty video hit 500K</p>
+                                        <p class="text-xs text-muted">@sarahj_beauty • 10 min ago</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3 p-2 rounded-lg hover:bg-surface">
+                                    <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium">Food Delivery campaign overdue</p>
+                                        <p class="text-xs text-muted">QuickEats • 1 hour ago</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3 p-2 rounded-lg hover:bg-surface">
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium">5 new creator applications</p>
+                                        <p class="text-xs text-muted">Tech Launch campaign • 2 hours ago</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Creator Database Page -->
+                <div id="page-creators" class="page-content hidden">
+                    <div class="bg-white rounded-xl border border-border">
+                        <div class="p-4 border-b border-border flex items-center gap-4">
+                            <div class="flex-1 relative">
+                                <input type="text" placeholder="Search by name, handle, niche..." class="w-full pl-9 pr-4 py-2 border border-border rounded-lg text-sm">
+                                <svg class="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </div>
+                            <select class="px-3 py-2 border border-border rounded-lg text-sm"><option>All Platforms</option><option>TikTok</option><option>Instagram</option><option>YouTube</option></select>
+                            <select class="px-3 py-2 border border-border rounded-lg text-sm"><option>All Status</option><option>Active</option><option>Invited</option><option>New</option></select>
+                            <select class="px-3 py-2 border border-border rounded-lg text-sm"><option>All Tiers</option><option>10K-100K</option><option>100K-500K</option><option>500K-1M</option><option>1M+</option></select>
+                            <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium">+ Add Creator</button>
+                        </div>
+                        <table class="w-full">
+                            <thead class="bg-surface text-xs text-muted">
+                                <tr>
+                                    <th class="text-left p-3 font-medium"><input type="checkbox" class="rounded"></th>
+                                    <th class="text-left p-3 font-medium">Creator</th>
+                                    <th class="text-left p-3 font-medium">Platform</th>
+                                    <th class="text-right p-3 font-medium">Followers</th>
+                                    <th class="text-right p-3 font-medium">Eng Rate</th>
+                                    <th class="text-right p-3 font-medium">Avg CPM</th>
+                                    <th class="text-left p-3 font-medium">Niche</th>
+                                    <th class="text-left p-3 font-medium">Status</th>
+                                    <th class="text-center p-3 font-medium">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-border text-sm">
+                                <tr class="hover:bg-surface/50">
+                                    <td class="p-3"><input type="checkbox" class="rounded"></td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-3">
+                                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop" class="w-8 h-8 rounded-full object-cover">
+                                            <div>
+                                                <p class="font-medium">Sarah Johnson</p>
+                                                <p class="text-xs text-muted">@sarahj_beauty</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-3"><span class="badge bg-black text-white">TikTok</span></td>
+                                    <td class="p-3 text-right font-medium">245K</td>
+                                    <td class="p-3 text-right">4.8%</td>
+                                    <td class="p-3 text-right text-green-600">$2.1</td>
+                                    <td class="p-3"><span class="badge bg-pink-100 text-pink-600">Beauty</span></td>
+                                    <td class="p-3"><span class="badge bg-green-100 text-green-600">Active</span></td>
+                                    <td class="p-3 text-center">
+                                        <button class="p-1 hover:bg-surface rounded"><svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                        <button class="p-1 hover:bg-surface rounded"><svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-surface/50">
+                                    <td class="p-3"><input type="checkbox" class="rounded"></td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-3">
+                                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop" class="w-8 h-8 rounded-full object-cover">
+                                            <div>
+                                                <p class="font-medium">Mike Chen</p>
+                                                <p class="text-xs text-muted">@techmikereviews</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-3"><span class="badge bg-red-600 text-white">YouTube</span></td>
+                                    <td class="p-3 text-right font-medium">892K</td>
+                                    <td class="p-3 text-right">3.2%</td>
+                                    <td class="p-3 text-right text-green-600">$3.8</td>
+                                    <td class="p-3"><span class="badge bg-blue-100 text-blue-600">Tech</span></td>
+                                    <td class="p-3"><span class="badge bg-yellow-100 text-yellow-600">Invited</span></td>
+                                    <td class="p-3 text-center">
+                                        <button class="p-1 hover:bg-surface rounded"><svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                        <button class="p-1 hover:bg-surface rounded"><svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-surface/50">
+                                    <td class="p-3"><input type="checkbox" class="rounded"></td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-3">
+                                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop" class="w-8 h-8 rounded-full object-cover">
+                                            <div>
+                                                <p class="font-medium">Emma Fitness</p>
+                                                <p class="text-xs text-muted">@emma_fitlife</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-3"><span class="badge bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-white">Instagram</span></td>
+                                    <td class="p-3 text-right font-medium">156K</td>
+                                    <td class="p-3 text-right">6.1%</td>
+                                    <td class="p-3 text-right text-green-600">$1.9</td>
+                                    <td class="p-3"><span class="badge bg-green-100 text-green-600">Fitness</span></td>
+                                    <td class="p-3"><span class="badge bg-green-100 text-green-600">Active</span></td>
+                                    <td class="p-3 text-center">
+                                        <button class="p-1 hover:bg-surface rounded"><svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                        <button class="p-1 hover:bg-surface rounded"><svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="p-4 border-t border-border flex items-center justify-between text-sm">
+                            <span class="text-muted">Showing 1-20 of 2,438 creators</span>
+                            <div class="flex gap-1">
+                                <button class="px-3 py-1 border border-border rounded hover:bg-surface">Prev</button>
+                                <button class="px-3 py-1 bg-primary text-white rounded">1</button>
+                                <button class="px-3 py-1 border border-border rounded hover:bg-surface">2</button>
+                                <button class="px-3 py-1 border border-border rounded hover:bg-surface">3</button>
+                                <button class="px-3 py-1 border border-border rounded hover:bg-surface">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gameplan Agent Page -->
+                <div id="page-gameplan-agent" class="page-content hidden">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl border border-border p-5">
+                            <h3 class="font-semibold mb-4">Generate Gameplan</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Select Campaign</label>
+                                    <select class="w-full px-3 py-2 border border-border rounded-lg">
+                                        <option>Summer Beauty - Acme Brand</option>
+                                        <option>Tech Launch - TechCo</option>
+                                        <option>Fitness App Q1 - FitLife</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Reference Videos (Optional)</label>
+                                    <div class="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                                        <svg class="w-8 h-8 text-muted mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                        <p class="text-sm text-muted">Drop video links or upload files</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Additional Instructions</label>
+                                    <textarea class="w-full px-3 py-2 border border-border rounded-lg h-24 resize-none" placeholder="Any specific requirements or style preferences..."></textarea>
+                                </div>
+                                <button class="w-full py-2.5 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-medium hover:opacity-90">
+                                    🤖 Generate Gameplan with AI
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-border p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold">Generated Gameplan</h3>
+                                <span class="badge bg-green-100 text-green-600">Ready</span>
+                            </div>
+                            <div class="bg-surface rounded-lg p-4 mb-4 max-h-80 overflow-y-auto text-sm">
+                                <h4 class="font-semibold mb-2">Summer Beauty Campaign Gameplan</h4>
+                                <p class="text-muted mb-3">Generated based on 3 reference videos</p>
+
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="font-medium">🎬 Video Format</p>
+                                        <p class="text-muted">Get Ready With Me (GRWM) style, 30-60 seconds</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">📝 Key Talking Points</p>
+                                        <ul class="text-muted list-disc list-inside">
+                                            <li>Natural glow without heavy makeup</li>
+                                            <li>Summer-proof skincare routine</li>
+                                            <li>Product texture and feel</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">🎯 CTA Requirements</p>
+                                        <p class="text-muted">Link in bio + discount code mention</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">⚠️ Dos & Don'ts</p>
+                                        <p class="text-muted">Do: Show before/after. Don't: Make medical claims</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <button class="flex-1 py-2 border border-border rounded-lg font-medium hover:bg-surface">Edit</button>
+                                <button class="flex-1 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90">Send to Creators</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review System Page -->
+                <div id="page-review" class="page-content hidden">
+                    <div class="flex gap-6 h-[calc(100vh-180px)]">
+                        <div class="w-72 bg-white rounded-xl border border-border overflow-hidden flex flex-col flex-shrink-0">
+                            <div class="p-3 border-b border-border">
+                                <select class="w-full px-3 py-2 border border-border rounded-lg text-sm">
+                                    <option>All Campaigns</option>
+                                    <option>Summer Beauty</option>
+                                    <option>Tech Launch</option>
+                                </select>
+                            </div>
+                            <div class="flex-1 overflow-y-auto divide-y divide-border">
+                                <div class="p-3 bg-primary/5 border-l-2 border-primary cursor-pointer">
+                                    <div class="flex gap-2">
+                                        <div class="w-14 h-20 bg-gray-200 rounded overflow-hidden flex-shrink-0">
+                                            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=80&h=120&fit=crop" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-medium text-sm truncate">Summer glow</p>
+                                            <p class="text-xs text-muted">Sarah J.</p>
+                                            <span class="badge bg-yellow-100 text-yellow-600 mt-1">New</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-3 hover:bg-surface cursor-pointer">
+                                    <div class="flex gap-2">
+                                        <div class="w-14 h-20 bg-gray-200 rounded overflow-hidden flex-shrink-0">
+                                            <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=80&h=120&fit=crop" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-medium text-sm truncate">Night routine</p>
+                                            <p class="text-xs text-muted">Emma L.</p>
+                                            <span class="badge bg-orange-100 text-orange-600 mt-1">Rev 2</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 bg-white rounded-xl border border-border overflow-hidden flex">
+                            <div class="w-80 bg-dark flex items-center justify-center p-4">
+                                <div class="w-full max-w-[200px] aspect-[9/16] bg-gray-800 rounded-xl overflow-hidden relative">
+                                    <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&h=530&fit=crop" class="w-full h-full object-cover">
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <button class="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 p-5 flex flex-col">
+                                <div class="mb-4">
+                                    <h3 class="font-semibold text-lg">Summer glow routine</h3>
+                                    <p class="text-sm text-muted">Sarah Johnson • Summer Beauty Campaign</p>
+                                </div>
+
+                                <div class="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg p-3 mb-4 border border-primary/10">
+                                    <p class="text-xs font-medium text-primary mb-2">🤖 AI Analysis</p>
+                                    <div class="text-xs space-y-1">
+                                        <p class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Brand mention correct</p>
+                                        <p class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Product visible</p>
+                                        <p class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> CTA could be stronger</p>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <p class="text-sm font-medium mb-2">Checklist</p>
+                                    <div class="space-y-1.5 text-sm">
+                                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked class="rounded text-primary"> Brand mentioned</label>
+                                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked class="rounded text-primary"> Product visible</label>
+                                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded text-primary"> Guidelines followed</label>
+                                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded text-primary"> Clear CTA</label>
+                                    </div>
+                                </div>
+
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium mb-2">Feedback</p>
+                                    <textarea class="w-full h-20 p-2 border border-border rounded-lg text-sm resize-none" placeholder="Add notes..."></textarea>
+                                </div>
+
+                                <div class="flex gap-3 mt-4">
+                                    <button class="flex-1 py-2 border border-red-200 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50">Request Revision</button>
+                                    <button class="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700">Approve</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payout System Page -->
+                <div id="page-payout" class="page-content hidden">
+                    <div class="grid grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white rounded-xl p-4 border border-border">
+                            <p class="text-xs text-muted mb-1">Total Pending</p>
+                            <p class="text-2xl font-bold text-yellow-600">$24,580</p>
+                            <p class="text-xs text-muted">32 creators</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 border border-border">
+                            <p class="text-xs text-muted mb-1">Processing</p>
+                            <p class="text-2xl font-bold text-blue-600">$8,420</p>
+                            <p class="text-xs text-muted">12 transfers</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 border border-border">
+                            <p class="text-xs text-muted mb-1">Paid This Month</p>
+                            <p class="text-2xl font-bold text-green-600">$156,340</p>
+                            <p class="text-xs text-muted">248 payouts</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 border border-border">
+                            <p class="text-xs text-muted mb-1">Avg Per Creator</p>
+                            <p class="text-2xl font-bold">$630</p>
+                            <p class="text-xs text-muted">This month</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-border">
+                        <div class="p-4 border-b border-border flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <h3 class="font-semibold">Pending Payouts</h3>
+                                <select class="px-3 py-1.5 border border-border rounded-lg text-sm"><option>All Campaigns</option></select>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-surface">Export CSV</button>
+                                <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium">Process Selected</button>
+                            </div>
+                        </div>
+                        <table class="w-full text-sm">
+                            <thead class="bg-surface text-xs text-muted">
+                                <tr>
+                                    <th class="text-left p-3 font-medium"><input type="checkbox" class="rounded"></th>
+                                    <th class="text-left p-3 font-medium">Creator</th>
+                                    <th class="text-left p-3 font-medium">Campaign</th>
+                                    <th class="text-left p-3 font-medium">Type</th>
+                                    <th class="text-right p-3 font-medium">Base</th>
+                                    <th class="text-right p-3 font-medium">Bonus</th>
+                                    <th class="text-right p-3 font-medium">Total</th>
+                                    <th class="text-center p-3 font-medium">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-border">
+                                <tr class="hover:bg-surface/50">
+                                    <td class="p-3"><input type="checkbox" class="rounded"></td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-2">
+                                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&h=60&fit=crop" class="w-7 h-7 rounded-full object-cover">
+                                            <span class="font-medium">Sarah Johnson</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3 text-muted">Summer Beauty</td>
+                                    <td class="p-3"><span class="badge bg-blue-100 text-blue-600">Flat+CPM</span></td>
+                                    <td class="p-3 text-right">$500</td>
+                                    <td class="p-3 text-right text-green-600">+$245</td>
+                                    <td class="p-3 text-right font-semibold">$745</td>
+                                    <td class="p-3 text-center"><span class="badge bg-yellow-100 text-yellow-600">Pending</span></td>
+                                </tr>
+                                <tr class="hover:bg-surface/50">
+                                    <td class="p-3"><input type="checkbox" class="rounded"></td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-2">
+                                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop" class="w-7 h-7 rounded-full object-cover">
+                                            <span class="font-medium">Mike Chen</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3 text-muted">Tech Launch</td>
+                                    <td class="p-3"><span class="badge bg-purple-100 text-purple-600">Tiered</span></td>
+                                    <td class="p-3 text-right">$800</td>
+                                    <td class="p-3 text-right text-muted">-</td>
+                                    <td class="p-3 text-right font-semibold">$800</td>
+                                    <td class="p-3 text-center"><span class="badge bg-blue-100 text-blue-600">Processing</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Campaign DB Page -->
+                <div id="page-campaigns" class="page-content hidden">
+                    <div class="bg-white rounded-xl border border-border">
+                        <div class="p-4 border-b border-border flex items-center gap-4">
+                            <div class="flex-1 relative">
+                                <input type="text" placeholder="Search campaigns..." class="w-full pl-9 pr-4 py-2 border border-border rounded-lg text-sm">
+                                <svg class="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </div>
+                            <select class="px-3 py-2 border border-border rounded-lg text-sm"><option>All Status</option><option>Sourcing</option><option>Production</option><option>Review</option><option>Live</option></select>
+                            <select class="px-3 py-2 border border-border rounded-lg text-sm"><option>All Brands</option></select>
+                            <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium">+ New Deal</button>
+                        </div>
+                        <table class="w-full text-sm">
+                            <thead class="bg-surface text-xs text-muted">
+                                <tr>
+                                    <th class="text-left p-3 font-medium">Campaign</th>
+                                    <th class="text-left p-3 font-medium">Brand</th>
+                                    <th class="text-left p-3 font-medium">Status</th>
+                                    <th class="text-center p-3 font-medium">Creators</th>
+                                    <th class="text-center p-3 font-medium">Videos</th>
+                                    <th class="text-right p-3 font-medium">Budget</th>
+                                    <th class="text-right p-3 font-medium">Views</th>
+                                    <th class="text-center p-3 font-medium">Deadline</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-border">
+                                <tr class="hover:bg-surface/50 cursor-pointer">
+                                    <td class="p-3 font-medium">Summer Beauty</td>
+                                    <td class="p-3 text-muted">Acme Brand</td>
+                                    <td class="p-3"><span class="badge bg-blue-100 text-blue-600">Sourcing</span></td>
+                                    <td class="p-3 text-center">12/20</td>
+                                    <td class="p-3 text-center">0/20</td>
+                                    <td class="p-3 text-right">$15,000</td>
+                                    <td class="p-3 text-right text-muted">-</td>
+                                    <td class="p-3 text-center">Feb 15</td>
+                                </tr>
+                                <tr class="hover:bg-surface/50 cursor-pointer">
+                                    <td class="p-3 font-medium">Tech Launch</td>
+                                    <td class="p-3 text-muted">TechCo</td>
+                                    <td class="p-3"><span class="badge bg-yellow-100 text-yellow-600">Production</span></td>
+                                    <td class="p-3 text-center">15/15</td>
+                                    <td class="p-3 text-center">8/15</td>
+                                    <td class="p-3 text-right">$25,000</td>
+                                    <td class="p-3 text-right text-muted">-</td>
+                                    <td class="p-3 text-center">Feb 20</td>
+                                </tr>
+                                <tr class="hover:bg-surface/50 cursor-pointer">
+                                    <td class="p-3 font-medium">Holiday Special</td>
+                                    <td class="p-3 text-muted">BigRetail</td>
+                                    <td class="p-3"><span class="badge bg-green-100 text-green-600">Live</span></td>
+                                    <td class="p-3 text-center">30/30</td>
+                                    <td class="p-3 text-center">30/30</td>
+                                    <td class="p-3 text-right">$45,000</td>
+                                    <td class="p-3 text-right font-medium">2.1M</td>
+                                    <td class="p-3 text-center text-green-600">Complete</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Placeholder pages -->
+                <div id="page-dashboard-agent" class="page-content hidden">
+                    <div class="bg-white rounded-xl border border-border p-8 text-center">
+                        <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Dashboard Agent</h3>
+                        <p class="text-muted mb-6">AI-powered trending and competitor dashboard creation</p>
+                        <button class="px-6 py-2.5 bg-primary text-white rounded-lg font-medium">Create New Dashboard</button>
+                    </div>
+                </div>
+
+                <div id="page-alerts" class="page-content hidden">
+                    <div class="space-y-4">
+                        <div class="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-semibold text-green-800">Viral Alert: Summer glow video hit 500K views!</p>
+                                <p class="text-sm text-green-600">@sarahj_beauty • Summer Beauty Campaign • 10 min ago</p>
+                            </div>
+                            <button class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium">Boost Now</button>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-semibold text-blue-800">5 new creator applications</p>
+                                <p class="text-sm text-blue-600">Tech Launch Campaign • 2 hours ago</p>
+                            </div>
+                            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">Review</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="page-comms" class="page-content hidden">
+                    <div class="bg-white rounded-xl border border-border p-8 text-center">
+                        <div class="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Two-Way Communication Hub</h3>
+                        <p class="text-muted mb-6">DM, Group Chat, and notification system connecting brands and creators</p>
+                        <div class="flex gap-3 justify-center">
+                            <button class="px-6 py-2.5 bg-secondary text-white rounded-lg font-medium">Open DMs</button>
+                            <button class="px-6 py-2.5 border border-border rounded-lg font-medium">Group Chats</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showPage(pageName) {
+            document.querySelectorAll('.page-content').forEach(page => page.classList.add('hidden'));
+            document.getElementById('page-' + pageName).classList.remove('hidden');
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+                item.classList.add('text-white/70');
+            });
+            event.currentTarget.classList.add('active');
+            event.currentTarget.classList.remove('text-white/70');
+
+            const titles = {
+                'dashboard': ['Operations Dashboard', 'Monitor and manage all campaigns'],
+                'campaigns': ['Campaign Database', 'All deals and campaign data'],
+                'creators': ['Creator Database', 'Manage creator pool and tags'],
+                'dashboard-agent': ['Dashboard Agent', 'AI-powered dashboard creation'],
+                'gameplan-agent': ['Gameplan Agent', 'Generate content briefs with AI'],
+                'review': ['Review System', 'Video review and approval workflow'],
+                'alerts': ['Source Alerts', 'Viral alerts and notifications'],
+                'comms': ['Communications', 'Two-way messaging system'],
+                'payout': ['Payout System', 'Payment processing and calculation']
+            };
+            if (titles[pageName]) {
+                document.getElementById('page-title').textContent = titles[pageName][0];
+                document.getElementById('page-subtitle').textContent = titles[pageName][1];
+            }
+        }
+    </script>
+</body>
+</html>
